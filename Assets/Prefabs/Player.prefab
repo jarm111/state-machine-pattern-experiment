@@ -90,6 +90,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   movementSpeed: 10
+  jumpForce: 300
 --- !u!212 &212692216104665662
 SpriteRenderer:
   m_ObjectHideFlags: 1
