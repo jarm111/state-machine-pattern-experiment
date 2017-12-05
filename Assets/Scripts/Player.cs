@@ -22,7 +22,7 @@ public class Player : MonoBehaviour
     {
         if (Input.GetButtonDown("Jump"))
         {
-            if(!isCrouching)
+            if(!isCrouching && CheckIsGrounded())
             {
                 Jump();
             }
@@ -36,17 +36,9 @@ public class Player : MonoBehaviour
         if (Input.GetButtonDown("Crouch") && !isCrouching)
         {
             Crouch();
-            //if (!isCrouching)
-            //{
-            //    Crouch();
-            //}
-            //else
-            //{
-            //    gameObject.transform.localScale = new Vector3(2, 1, 1);
-            //    //capsuleCollider.size = new Vector2(1, .5f);
-            //    isCrouching = true;
-            //}
         }
+
+        Debug.DrawRay(transform.position, Vector2.down * 1f, Color.green, 0.5f, false);
     }
 
     private void FixedUpdate()
@@ -76,5 +68,12 @@ public class Player : MonoBehaviour
         gameObject.transform.localScale = new Vector3(2, 2, 1);
         //capsuleCollider.size = new Vector2(1, 1);
         isCrouching = false;
+    }
+
+    private bool CheckIsGrounded()
+    {
+        bool isGrounded = Physics2D.Raycast(transform.position, Vector2.down, 1.1f);
+        Debug.Log(isGrounded);
+        return isGrounded;
     }
 }
