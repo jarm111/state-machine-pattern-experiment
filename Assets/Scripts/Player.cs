@@ -10,35 +10,42 @@ public class Player : MonoBehaviour
 
     private bool isCrouching;
     private Rigidbody2D rb2d;
-    private CapsuleCollider2D capsuleCollider;
+    //private CapsuleCollider2D capsuleCollider;
 
     private void Start()
     {
         rb2d = GetComponent<Rigidbody2D>();
-        capsuleCollider = GetComponent<CapsuleCollider2D>();
+        //capsuleCollider = GetComponent<CapsuleCollider2D>();
     }
 
     private void Update()
     {
         if (Input.GetButtonDown("Jump"))
         {
-            Jump();
-        }
-
-        if (Input.GetButtonDown("Crouch"))
-        {
-            if (isCrouching)
+            if(!isCrouching)
             {
-                gameObject.transform.localScale = new Vector3(2, 2, 1);
-                capsuleCollider.size = new Vector2(1, 1);
-                isCrouching = false;
+                Jump();
             }
             else
             {
-                gameObject.transform.localScale = new Vector3(2, 1, 1);
-                capsuleCollider.size = new Vector2(1, .5f);
-                isCrouching = true;
+                StandUp();
             }
+            
+        }
+
+        if (Input.GetButtonDown("Crouch") && !isCrouching)
+        {
+            Crouch();
+            //if (!isCrouching)
+            //{
+            //    Crouch();
+            //}
+            //else
+            //{
+            //    gameObject.transform.localScale = new Vector3(2, 1, 1);
+            //    //capsuleCollider.size = new Vector2(1, .5f);
+            //    isCrouching = true;
+            //}
         }
     }
 
@@ -57,8 +64,17 @@ public class Player : MonoBehaviour
         rb2d.AddForce(new Vector2(rb2d.velocity.x, jumpForce));
     }
 
-    //private void Crouch()
-    //{
+    private void Crouch()
+    {
+        gameObject.transform.localScale = new Vector3(2, 1, 1);
+        //capsuleCollider.size = new Vector2(1, .5f);
+        isCrouching = true;
+    }
 
-    //}
+    private void StandUp()
+    {
+        gameObject.transform.localScale = new Vector3(2, 2, 1);
+        //capsuleCollider.size = new Vector2(1, 1);
+        isCrouching = false;
+    }
 }
