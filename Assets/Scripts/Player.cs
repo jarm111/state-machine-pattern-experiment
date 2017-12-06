@@ -8,11 +8,14 @@ public class Player : MonoBehaviour
     [SerializeField]
     private float jumpForce = 300;
     [SerializeField]
-    private float crouchingSpeedMultiplier = 0.8f;
+    private float sprintSpeedMultiplier = 1.3f;
+    [SerializeField]
+    private float crouchingSpeedMultiplier = 0.7f;
     [SerializeField]
     private float proneSpeedMultiplier = 0.4f;
 
     private float currentMovementSpeed;
+    private bool isSprinting;
     private bool isCrouching;
     private bool isProne;
     private Rigidbody2D rb2d;
@@ -39,6 +42,7 @@ public class Player : MonoBehaviour
             }
             else if (CheckIsGrounded())
             {
+                StopSprint();
                 Jump();
             }
         }
@@ -47,6 +51,7 @@ public class Player : MonoBehaviour
         {
             if (!isCrouching && !isProne)
             {
+                StopSprint();
                 Crouch();
             }
             else if (!isProne)
@@ -55,7 +60,15 @@ public class Player : MonoBehaviour
             } 
         }
 
-        //Debug.DrawRay(new Vector2(transform.position.x, transform.position.y - capsuleCollider.size.y - .01f), Vector2.down * .1f, Color.green, 0.5f, false);
+        if (Input.GetButtonDown("Sprint") && !isSprinting && CheckIsGrounded() && !isCrouching && !isProne)
+        {
+            Sprint();
+        }
+
+        if (Input.GetButtonUp("Sprint") && isSprinting)
+        {
+            StopSprint();
+        }
     }
 
     private void FixedUpdate()
@@ -77,7 +90,6 @@ public class Player : MonoBehaviour
     {
         gameObject.transform.localScale = new Vector3(2, 1, 1);
         currentMovementSpeed = walkingSpeed * crouchingSpeedMultiplier;
-        //capsuleCollider.size = new Vector2(1, .5f);
         isCrouching = true;
         isProne = false;
     }
@@ -86,15 +98,12 @@ public class Player : MonoBehaviour
     {
         gameObject.transform.localScale = new Vector3(2, 2, 1);
         currentMovementSpeed = walkingSpeed;
-        //capsuleCollider.size = new Vector2(1, 1);
         isCrouching = false;
     }
 
     private bool CheckIsGrounded()
     {
-        // LayerMask.NameToLayer("Ground")
         bool isGrounded = Physics2D.Raycast(new Vector2(transform.position.x, transform.position.y - capsuleCollider.size.y - .1f), Vector2.down, .1f, LayerMask.GetMask("Ground"));
-        //bool isGrounded = (Mathf.Abs(rb2d.velocity.y) < 0.1);
         Debug.Log(isGrounded);
         return isGrounded;
     }
@@ -105,5 +114,17 @@ public class Player : MonoBehaviour
         currentMovementSpeed = walkingSpeed * proneSpeedMultiplier;
         isProne = true;
         isCrouching = false;
+    }
+
+    private void Sprint()
+    {
+        currentMovementSpeed = walkingSpeed * sprintSpeedMultiplier;
+        isSprinting = true;
+    }
+
+    private void StopSprint()
+    {
+        currentMovementSpeed = walkingSpeed;
+        isSprinting = false;
     }
 }
