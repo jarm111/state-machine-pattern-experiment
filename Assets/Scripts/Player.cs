@@ -3,6 +3,15 @@
 public class Player : MonoBehaviour
 {
 
+    private enum PlayerFsm
+    {
+        Walking,
+        Sprinting,
+        Crouched,
+        Prone,
+        Jumping
+    }
+
     [SerializeField]
     private float walkingSpeed = 10;
     [SerializeField]
@@ -18,11 +27,13 @@ public class Player : MonoBehaviour
     private bool isSprinting;
     private bool isCrouching;
     private bool isProne;
+    private PlayerFsm playerState;
     private Rigidbody2D rb2d;
     private CapsuleCollider2D capsuleCollider;
 
     private void Start()
     {
+        playerState = PlayerFsm.Walking;
         rb2d = GetComponent<Rigidbody2D>();
         capsuleCollider = GetComponent<CapsuleCollider2D>();
         currentMovementSpeed = walkingSpeed;
@@ -30,45 +41,78 @@ public class Player : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetButtonDown("Jump"))
+        switch (playerState)
         {
-            if (isCrouching)
-            {
-                StandUp();
-            }
-            else if (isProne)
-            {
-                Crouch();
-            }
-            else if (CheckIsGrounded())
-            {
-                StopSprint();
-                Jump();
-            }
-        }
+            case PlayerFsm.Walking:
+                if (Input.GetButtonDown("Jump") && CheckIsGrounded())
+                {
+                    Jump();
+                }
+                if (Input.GetButtonDown("Duck") && CheckIsGrounded())
+                {
+                    playerState = PlayerFsm.Crouched;
+                    Crouch();
+                }
+                if (Input.GetButtonDown("Sprint"))
+                {
+                    playerState = PlayerFsm.Sprinting;
+                    Sprint();
+                }
+                break;
 
-        if (Input.GetButtonDown("Duck") && CheckIsGrounded())
-        {
-            if (!isCrouching && !isProne)
-            {
-                StopSprint();
-                Crouch();
-            }
-            else if (!isProne)
-            {
-                Prone();
-            } 
+            case PlayerFsm.Sprinting:
+                if (Input.GetButtonUp("Sprint"))
+                {
+                    playerState = PlayerFsm.Walking;
+                    StopSprint();
+                }
+                if (Input.GetButtonDown("Jump") && CheckIsGrounded())
+                {
+                    playerState = PlayerFsm.Walking;
+                    StopSprint();
+                    Jump();
+                }
+                break;
         }
+        //if (Input.GetButtonDown("Jump"))
+        //{
+        //    if (isCrouching)
+        //    {
+        //        StandUp();
+        //    }
+        //    else if (isProne)
+        //    {
+        //        Crouch();
+        //    }
+        //    else if (CheckIsGrounded())
+        //    {
+        //        StopSprint();
+        //        Jump();
+        //    }
+        //}
 
-        if (Input.GetButtonDown("Sprint") && !isSprinting && CheckIsGrounded() && !isCrouching && !isProne)
-        {
-            Sprint();
-        }
+        //if (Input.GetButtonDown("Duck") && CheckIsGrounded())
+        //{
+        //    if (!isCrouching && !isProne)
+        //    {
+        //        StopSprint();
+        //        Crouch();
+        //    }
+        //    else if (!isProne)
+        //    {
+        //        Prone();
+        //    } 
+        //}
 
-        if (Input.GetButtonUp("Sprint") && isSprinting)
-        {
-            StopSprint();
-        }
+        //if (Input.GetButtonDown("Sprint") && !isSprinting && CheckIsGrounded() && !isCrouching && !isProne)
+        //{
+        //    Sprint();
+        //}
+
+        //if (Input.GetButtonUp("Sprint") && isSprinting)
+        //{
+        //    StopSprint();
+        //}
     }
 
     private void FixedUpdate()
