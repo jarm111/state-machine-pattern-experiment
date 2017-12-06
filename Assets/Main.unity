@@ -157,6 +157,11 @@ Prefab:
       propertyPath: m_Enabled
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 114651638316223452, guid: b5b983e2701299a4cbde7171f0fe4af6,
+        type: 2}
+      propertyPath: crouchingSpeedMultiplier
+      value: 0.7
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: b5b983e2701299a4cbde7171f0fe4af6, type: 2}
   m_IsPrefabParent: 0
