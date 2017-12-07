@@ -1,9 +1,9 @@
 ﻿using UnityEngine;
 
-public class Player : MonoBehaviour
+public class PlayerMovement : MonoBehaviour
 {
 
-    private enum PlayerFsm
+    public enum PlayerStates
     {
         Walking,
         Sprinting,
@@ -24,100 +24,111 @@ public class Player : MonoBehaviour
     private float proneSpeedMultiplier = 0.4f;
 
     private float currentMovementSpeed;
-    private bool isSprinting;
-    private bool isCrouching;
-    private bool isProne;
-    private PlayerFsm playerState;
+    private PlayerStates playerState;
     private Rigidbody2D rb2d;
     private CapsuleCollider2D capsuleCollider;
 
+    public PlayerStates PlayerState
+    {
+        get
+        {
+            return playerState;
+        }
+    }
+
     private void Start()
     {
-        playerState = PlayerFsm.Walking;
         rb2d = GetComponent<Rigidbody2D>();
         capsuleCollider = GetComponent<CapsuleCollider2D>();
+        playerState = PlayerStates.Walking;
         currentMovementSpeed = walkingSpeed;
     }
 
     private void Update()
     {
-        switch (playerState)
-        {
-            case PlayerFsm.Walking:
-                if (Input.GetButtonDown("Jump") && CheckIsGrounded())
-                {
-                    Jump();
-                }
-                if (Input.GetButtonDown("Duck") && CheckIsGrounded())
-                {
-                    playerState = PlayerFsm.Crouched;
-                    Crouch();
-                }
-                if (Input.GetButtonDown("Sprint"))
-                {
-                    playerState = PlayerFsm.Sprinting;
-                    Sprint();
-                }
-                break;
-
-            case PlayerFsm.Sprinting:
-                if (Input.GetButtonUp("Sprint"))
-                {
-                    playerState = PlayerFsm.Walking;
-                    StopSprint();
-                }
-                if (Input.GetButtonDown("Jump") && CheckIsGrounded())
-                {
-                    playerState = PlayerFsm.Walking;
-                    StopSprint();
-                    Jump();
-                }
-                break;
-        }
-        //if (Input.GetButtonDown("Jump"))
-        //{
-        //    if (isCrouching)
-        //    {
-        //        StandUp();
-        //    }
-        //    else if (isProne)
-        //    {
-        //        Crouch();
-        //    }
-        //    else if (CheckIsGrounded())
-        //    {
-        //        StopSprint();
-        //        Jump();
-        //    }
-        //}
-
-        //if (Input.GetButtonDown("Duck") && CheckIsGrounded())
-        //{
-        //    if (!isCrouching && !isProne)
-        //    {
-        //        StopSprint();
-        //        Crouch();
-        //    }
-        //    else if (!isProne)
-        //    {
-        //        Prone();
-        //    } 
-        //}
-
-        //if (Input.GetButtonDown("Sprint") && !isSprinting && CheckIsGrounded() && !isCrouching && !isProne)
-        //{
-        //    Sprint();
-        //}
-
-        //if (Input.GetButtonUp("Sprint") && isSprinting)
-        //{
-        //    StopSprint();
-        //}
+        UpdatePlayerState();
     }
 
     private void FixedUpdate()
     {
         Move(currentMovementSpeed);
+    }
+
+    private void UpdatePlayerState()
+    {
+        switch (playerState)
+        {
+            case PlayerStates.Walking:
+
+                if (Input.GetButtonDown("Jump") && CheckIsGrounded())
+                {
+                    Jump();
+                }
+
+                if (Input.GetButtonDown("Duck") && CheckIsGrounded())
+                {
+                    playerState = PlayerStates.Crouched;
+                    Crouch();
+                }
+
+                if (Input.GetButtonDown("Sprint") && CheckIsGrounded())
+                {
+                    playerState = PlayerStates.Sprinting;
+                    Sprint();
+                }
+
+                break;
+
+            case PlayerStates.Sprinting:
+
+                if (Input.GetButtonUp("Sprint"))
+                {
+                    playerState = PlayerStates.Walking;
+                    StopSprint();
+                }
+
+                if (Input.GetButtonDown("Jump") && CheckIsGrounded())
+                {
+                    playerState = PlayerStates.Walking;
+                    StopSprint();
+                    Jump();
+                }
+
+                if (Input.GetButtonDown("Duck") && CheckIsGrounded())
+                {
+                    playerState = PlayerStates.Crouched;
+                    StopSprint();
+                    Crouch();
+                }
+
+                break;
+
+            case PlayerStates.Crouched:
+
+                if (Input.GetButtonDown("Jump"))
+                {
+                    playerState = PlayerStates.Walking;
+                    StandUp();
+                }
+
+                if (Input.GetButtonDown("Duck"))
+                {
+                    playerState = PlayerStates.Prone;
+                    Prone();
+                }
+
+                break;
+
+            case PlayerStates.Prone:
+
+                if (Input.GetButtonDown("Jump"))
+                {
+                    playerState = PlayerStates.Crouched;
+                    Crouch();
+                }
+
+                break;
+        }
     }
 
     private void Move(float speed)
@@ -134,41 +145,35 @@ public class Player : MonoBehaviour
     {
         gameObject.transform.localScale = new Vector3(2, 1, 1);
         currentMovementSpeed = walkingSpeed * crouchingSpeedMultiplier;
-        isCrouching = true;
-        isProne = false;
     }
 
     private void StandUp()
     {
         gameObject.transform.localScale = new Vector3(2, 2, 1);
         currentMovementSpeed = walkingSpeed;
-        isCrouching = false;
     }
 
     private bool CheckIsGrounded()
     {
-        bool isGrounded = Physics2D.Raycast(new Vector2(transform.position.x, transform.position.y - capsuleCollider.size.y - .1f), Vector2.down, .1f, LayerMask.GetMask("Ground"));
-        Debug.Log(isGrounded);
-        return isGrounded;
+        return Physics2D.Raycast(new Vector2(transform.position.x, 
+            transform.position.y - capsuleCollider.size.y - .1f), 
+            Vector2.down, .1f, 
+            LayerMask.GetMask("Ground"));
     }
 
     private void Prone()
     {
         gameObject.transform.localScale = new Vector3(2, 0.5f, 1);
         currentMovementSpeed = walkingSpeed * proneSpeedMultiplier;
-        isProne = true;
-        isCrouching = false;
     }
 
     private void Sprint()
     {
         currentMovementSpeed = walkingSpeed * sprintSpeedMultiplier;
-        isSprinting = true;
     }
 
     private void StopSprint()
     {
         currentMovementSpeed = walkingSpeed;
-        isSprinting = false;
     }
 }
