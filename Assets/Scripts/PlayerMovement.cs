@@ -23,12 +23,11 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField]
     private float proneSpeedMultiplier = 0.4f;
     [SerializeField]
-    private Vector2 sizeWhenStanding = new Vector2(2, 2);
-    [SerializeField]
     private float crouchedSizeMultiplier = 0.5f;
     [SerializeField]
     private float proneSizeMultiplier = 0.25f;
 
+    private Vector2 sizeWhenStanding;
     private float currentMovementSpeed;
     private PlayerStates playerState;
     private Rigidbody2D rb2d;
@@ -47,6 +46,7 @@ public class PlayerMovement : MonoBehaviour
         rb2d = GetComponent<Rigidbody2D>();
         capsuleCollider = GetComponent<CapsuleCollider2D>();
         playerState = PlayerStates.Walking;
+        sizeWhenStanding = gameObject.transform.localScale;
         currentMovementSpeed = walkingSpeed;
     }
 
