@@ -22,6 +22,12 @@ public class PlayerMovement : MonoBehaviour
     private float crouchingSpeedMultiplier = 0.7f;
     [SerializeField]
     private float proneSpeedMultiplier = 0.4f;
+    [SerializeField]
+    private Vector2 sizeWhenStanding = new Vector2(2, 2);
+    [SerializeField]
+    private float crouchedSizeMultiplier = 0.5f;
+    [SerializeField]
+    private float proneSizeMultiplier = 0.25f;
 
     private float currentMovementSpeed;
     private PlayerStates playerState;
@@ -149,6 +155,14 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
+    private bool CheckIsGrounded()
+    {
+        return Physics2D.Raycast(new Vector2(transform.position.x,
+            transform.position.y - capsuleCollider.size.y - .1f),
+            Vector2.down, .1f,
+            LayerMask.GetMask("Ground"));
+    }
+
     private void Move(float speed)
     {
         rb2d.AddForce(new Vector2(Input.GetAxis("Horizontal") * speed, rb2d.velocity.y));
@@ -161,28 +175,20 @@ public class PlayerMovement : MonoBehaviour
 
     private void Crouch()
     {
-        gameObject.transform.localScale = new Vector3(2, 1, 1);
+        gameObject.transform.localScale = new Vector2 (sizeWhenStanding.x, sizeWhenStanding.y * crouchedSizeMultiplier);
         currentMovementSpeed = walkingSpeed * crouchingSpeedMultiplier;
-    }
-
-    private void StandUp()
-    {
-        gameObject.transform.localScale = new Vector3(2, 2, 1);
-        currentMovementSpeed = walkingSpeed;
-    }
-
-    private bool CheckIsGrounded()
-    {
-        return Physics2D.Raycast(new Vector2(transform.position.x, 
-            transform.position.y - capsuleCollider.size.y - .1f), 
-            Vector2.down, .1f, 
-            LayerMask.GetMask("Ground"));
     }
 
     private void Prone()
     {
-        gameObject.transform.localScale = new Vector3(2, 0.5f, 1);
+        gameObject.transform.localScale = new Vector2(sizeWhenStanding.x, sizeWhenStanding.y * proneSizeMultiplier); ;
         currentMovementSpeed = walkingSpeed * proneSpeedMultiplier;
+    }
+
+    private void StandUp()
+    {
+        gameObject.transform.localScale = sizeWhenStanding;
+        currentMovementSpeed = walkingSpeed;
     }
 
     private void Sprint()
