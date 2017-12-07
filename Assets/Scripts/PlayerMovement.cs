@@ -54,24 +54,30 @@ public class PlayerMovement : MonoBehaviour
         Move(currentMovementSpeed);
     }
 
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        ChangeStateWhenLandingFromJump();
+    }
+
     private void UpdatePlayerState()
     {
         switch (playerState)
         {
             case PlayerStates.Walking:
 
-                if (Input.GetButtonDown("Jump") && CheckIsGrounded())
+                if (Input.GetButtonDown("Jump"))
                 {
+                    playerState = PlayerStates.Jumping;
                     Jump();
                 }
 
-                if (Input.GetButtonDown("Duck") && CheckIsGrounded())
+                if (Input.GetButtonDown("Duck"))
                 {
                     playerState = PlayerStates.Crouched;
                     Crouch();
                 }
 
-                if (Input.GetButtonDown("Sprint") && CheckIsGrounded())
+                if (Input.GetButtonDown("Sprint"))
                 {
                     playerState = PlayerStates.Sprinting;
                     Sprint();
@@ -87,14 +93,14 @@ public class PlayerMovement : MonoBehaviour
                     StopSprint();
                 }
 
-                if (Input.GetButtonDown("Jump") && CheckIsGrounded())
+                if (Input.GetButtonDown("Jump"))
                 {
-                    playerState = PlayerStates.Walking;
+                    playerState = PlayerStates.Jumping;
                     StopSprint();
                     Jump();
                 }
 
-                if (Input.GetButtonDown("Duck") && CheckIsGrounded())
+                if (Input.GetButtonDown("Duck"))
                 {
                     playerState = PlayerStates.Crouched;
                     StopSprint();
@@ -128,6 +134,18 @@ public class PlayerMovement : MonoBehaviour
                 }
 
                 break;
+
+            case PlayerStates.Jumping:
+
+                break;
+        }
+    }
+
+    private void ChangeStateWhenLandingFromJump()
+    {
+        if (CheckIsGrounded() && playerState == PlayerStates.Jumping)
+        {
+            playerState = PlayerStates.Walking;
         }
     }
 
