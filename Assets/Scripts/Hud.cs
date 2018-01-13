@@ -15,7 +15,7 @@ public class Hud : MonoBehaviour {
 
     private void OnGUI()
     {
-        GUI.TextField(new Rect(60, 60, 400, 100), "Player state: " + player.PlayerState, font);
+        GUI.TextField(new Rect(60, 40, 400, 100), "Player state: " + player.PlayerState, font);
     }
 
 }
