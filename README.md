@@ -1,5 +1,6 @@
 # State Machine Pattern Experiment
-Small platformer experiment project with state machine design pattern.
+
+Small platformer experiment project with state machine design pattern created with Unity in fall 2017.
 
 ## Features
 - Simple plaformer controls
